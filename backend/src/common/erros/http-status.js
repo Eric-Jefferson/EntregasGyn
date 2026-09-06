@@ -1,0 +1,11 @@
+module.exports = Object.freeze({
+    OK: 200,
+    CRIADO:201,
+
+    ERRO_REQUISICAO:400,
+    NAO_AUTENTICADO:401,
+    NAO_AUTORIZADO:403,
+    NAO_ENCONTRADO:404,
+    
+    ERRO_INTERNO:500
+})

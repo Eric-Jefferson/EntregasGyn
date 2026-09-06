@@ -1,0 +1,51 @@
+ROTA LOGIN ( auth/login) faz o login e gera o token
+ROTA ( auth/me ) usada para validar token. 
+
+router.get(
+    "/me",
+    autenticar,
+    obterUsuarioAutenticado
+);
+2. Reinicie o servidor.
+3. Faça login novamente.
+4. Pegue o novo token.
+5. Faça:
+GET /auth/me
+Authorization: Bearer SEU_TOKEN
+
+Agora o esperado é:
+
+200 OK
+
+com:
+
+{
+  "sucesso": true,
+  "usuario": {
+    "sub": "6a8e405253e14f53011c346f",
+    "perfil": "ADMIN",
+    "empresaId": "6a8e405253e14f53011c3470",
+    "iat": 1787709835,
+    "exp": 1787738635
+  }
+}
+E isso fecha uma etapa importante:
+LOGIN
+  ↓
+bcrypt valida senha
+  ↓
+usuário encontrado
+  ↓
+empresaId recuperado
+  ↓
+JWT gerado
+  ↓
+autenticar()
+  ↓
+req.usuario
+  ↓
+ADMIN + empresaId
+  ↓
+/auth/me
+  ↓
+200
