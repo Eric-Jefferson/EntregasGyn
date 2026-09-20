@@ -17,6 +17,8 @@ router.post("/", autenticar, exigirPermissao("USUARIO_CRIAR"), usuarioController
 //ATUALIZAR
 router.put("/:id", autenticar, exigirPermissao("USUARIO_ATUALIZAR"), usuarioController.atualizar);
 
+// ALTERAR SENHA
+router.patch("/:id/senha", autenticar, exigirPermissao("USUARIO_ALTERAR_SENHA"), usuarioController.alterarSenha);
 
 // REMOVER
 router.delete("/:id", autenticar, exigirPermissao("USUARIO_APAGAR"), usuarioController.remover)

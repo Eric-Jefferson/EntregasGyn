@@ -35,7 +35,7 @@ async function listar(req,res){
 
        console.error("ERRO AO LISTAR USUARIOS",error);
 
-        return res.status(HTTP_STATUS.ERRO_REQUISICAO).json({
+        return res.status(error.statusCode || HTTP_STATUS.ERRO_INTERNO).json({
             sucesso:false,
             mensagem: error.message
         });
@@ -79,7 +79,7 @@ async function atualizar(req,res){
         })
 
     } catch (error){
-        return res.status(HTTP_STATUS.ERRO_REQUISICAO).json({
+        return res.status(error.statusCode || HTTP_STATUS.ERRO_INTERNO).json({
             sucesso: false,
             mensagem: error.message
         });
@@ -107,12 +107,33 @@ async function remover(req, res) {
 
     } catch (error) {
 
-        return res.status(HTTP_STATUS.ERRO_REQUISICAO).json({
+        return res.status(error.statusCode || HTTP_STATUS.ERRO_INTERNO).json({
             sucesso: false,
             mensagem: error.message
         });
     }
 }
 
+async function alterarSenha(req, res, next){
+    try {
+        const { id } = req.params;
+        const { senha } = req.body;
+        const empresaId = req.usuario.empresaId;
 
-module.exports = { criar, listar, buscar, atualizar, remover }
+        await usuarioService.alterarSenha(
+            id,
+            senha, 
+            empresaId
+        );
+
+        return res.status(HTTP_STATUS.OK).json({
+            sucesso: true,
+            mensagem:"Senha alterada com sucesso!"
+        });
+
+    } catch (error){
+        next(error);
+    }
+
+}
+module.exports = { criar, listar, buscar, atualizar, remover, alterarSenha };

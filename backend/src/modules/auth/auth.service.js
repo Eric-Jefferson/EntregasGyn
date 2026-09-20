@@ -10,7 +10,7 @@ async function criarUsuario(dados){
     const usuarioExistente = await Usuario.findOne({ email });
 
     if (usuarioExistente){
-        throw new Error("ja exist um usuario cadastrado com este Email.")
+        throw new Erro("ja exist um usuario cadastrado com este Email.")
     }
 
     // transformar a senha em hash
@@ -43,7 +43,7 @@ async function login(email,senha){
     .select("+senha");
 
     if (!usuario){
-        throw new Erro("E-mail ou senha invalidos.");
+        throw new Error("E-mail ou senha invalidos.");
     }
 
     //comparar senha infomada com hash armzenado

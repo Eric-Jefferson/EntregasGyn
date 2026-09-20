@@ -1,11 +1,12 @@
 const usuarioRepository = require('./usuario.repository');
-const PERFIS = require("../../common/constants/perfis");
 const PERMISSOES = require('../../common/constants/permissoes');
 const PERFIS_PERMISSOES = require('../../common/constants/perfis-permissoes');
 const PERFIS_CRIAVEIS = require('../../common/constants/perfis-criaveis');
 const HTTP_STATUS = require('../../common/erros/http-status');
 const MENSAGENS = require('../../common/erros/mensagens');
 const AppError = require('../../common/errors/AppError');
+const bcrypt = require("bcrypt");
+
 
 async function criarUsuario(dados,usuarioAutenticado){
    
@@ -24,7 +25,7 @@ async function criarUsuario(dados,usuarioAutenticado){
     if(!perfisPermitidos.includes(dados.perfil)
     )
     {
-    throw new AppError(MENSAGENS.USUARIO_SEM_PERMISSAO, HTTP_STATUS.USUARIO_SEM_PERMISSAO);
+    throw new AppError(MENSAGENS.USUARIO_SEM_PERMISSAO, HTTP_STATUS.NAO_AUTORIZADO);
     }
 
     
@@ -36,13 +37,13 @@ async function criarUsuario(dados,usuarioAutenticado){
     const emailExistente = await usuarioRepository.buscarPorEmail(dados.email);
 
     if(emailExistente){
-        throw new Error ("Este E-mail ja esta cadastrado.");
+        throw new AppError (MENSAGENS.EMAIL_JA_CADASTRADO, HTTP_STATUS.ERRO_REQUISICAO);
     }
 
     const cpfExistente = await usuarioRepository.buscarPorCpf(dados.cpf);
 
     if(cpfExistente){
-        throw new Error ("Cpf ja cadastrado.");
+        throw new AppError (MENSAGENS.CPF_JA_CADASTRADO, HTTP_STATUS.ERRO_REQUISICAO);
     }
 
     const {
@@ -50,13 +51,17 @@ async function criarUsuario(dados,usuarioAutenticado){
     ...dadosUsuario
     } = dados;
 
+    
     console.log("=================================");
     console.log("EMPRESA DO TOKEN:", empresaId);
     console.log("EMPRESA DO BODY:", dados.empresaId);
     console.log("=================================");
 
+    const senhaHash = await bcrypt.hash(dados.senha,12);
+
     const usuario = await usuarioRepository.criar({
-        ...dados,
+        ...dadosUsuario,
+        senha: senhaHash,
         empresaId
     });
 
@@ -70,7 +75,7 @@ async function criarUsuario(dados,usuarioAutenticado){
 async function listarUsuarios(empresaId){
 
     if (!empresaId){
-        throw new Error("Usuario nao esta vinculado a uma empresa.");
+        throw new AppError(MENSAGENS.USUARIO_NAO_VINCULADO_EMPRESA, HTTP_STATUS.NAO_AUTORIZADO);
     }
 
     return await usuarioRepository.listarPorEmpresa(empresaId)
@@ -87,11 +92,11 @@ async function buscarUsuario(id,empresaId){
     }
     
     if (!usuario.empresaId || !empresaId){
-        throw new AppError(MENSAGENS.USUARIO_NAO_PERTENCE_EMPRESA, HTTP_STATUS.NAO_AUTORIZADO)
+        throw new AppError(MENSAGENS.USUARIO_NAO_VINCULADO_EMPRESA, HTTP_STATUS.NAO_AUTORIZADO)
     }
 
     if(usuario.empresaId.toString() !== empresaId.toString()){
-        throw new AppError(MENSAGENS.USUARIO_NAO_VINCULADO_EMPRESA, HTTP_STATUS.NAO_AUTORIZADO)
+        throw new AppError(MENSAGENS.USUARIO_NAO_PERTENCE_EMPRESA, HTTP_STATUS.NAO_AUTORIZADO)
     }
 
     usuario.senha = undefined;
@@ -109,19 +114,59 @@ async function atualizarUsuario(id,dados,empresaId){
     }
 
     if(!usuario.empresaId || !empresaId){
-        throw new AppError(MENSAGENS.USUARIO_NAO_PERTENCE_EMPRESA, HTTP_STATUS.NAO_AUTORIZADO);
-    }
-
-    if(usuario.empresaId.toString() !== empresaId.toString()){
         throw new AppError(MENSAGENS.USUARIO_NAO_VINCULADO_EMPRESA, HTTP_STATUS.NAO_AUTORIZADO);
     }
 
-    // aqui impedimos alteracao da empresa pelo cliente!
-    delete dados.empresaId;
+    if(usuario.empresaId.toString() !== empresaId.toString()){
+        throw new AppError(MENSAGENS.USUARIO_NAO_PERTENCE_EMPRESA, HTTP_STATUS.NAO_AUTORIZADO);
+    }
 
-    const atualizado = await usuarioRepository.atualizar(id,dados);
+    // aqui impedimos alteracao da empresa pelo cliente!
+    //delete dados.empresaId;
+
+    // aqui vamos limitar os dados que podem ser alterados
+    const dadosPermitidos = {
+        nome: dados.nome,
+        telefone: dados.telefone,
+        foto: dados.foto
+
+    }
+
+    const atualizado = await usuarioRepository.atualizar(id,dadosPermitidos);
 
     return atualizado;
+}
+
+async function alterarSenha(id, novaSenha, empresaId){
+   
+    const usuario = await usuarioRepository.buscarPorId(id);
+
+    if(!usuario){
+        throw new AppError(MENSAGENS.USUARIO_NAO_ENCONTRADO, HTTP_STATUS.NAO_ENCONTRADO);
+    }
+
+    if(!usuario.empresaId || !empresaId){
+        throw new AppError(MENSAGENS.USUARIO_NAO_VINCULADO_EMPRESA, HTTP_STATUS.NAO_AUTORIZADO);
+
+    }
+
+    if(usuario.empresaId.toString() !== empresaId.toString()){
+        throw new AppError(MENSAGENS.USUARIO_NAO_PERTENCE_EMRPESA, HTTP_STATUS.NAO_AUTORIZADO);
+
+    }
+
+    if(!novaSenha){
+        throw new AppError("Nova senha deve ser informada.", HTTP_STATUS.ERRO_REQUISICAO);
+    }
+
+    const senhaHash = await bcrypt.hash(novaSenha, 12);
+    
+    await usuarioRepository.atualizarsenha(
+        id,
+        senhaHash
+    )
+
+    return true;
 }
 
 async function removerUsuario(id,empresaId){
@@ -150,4 +195,10 @@ async function removerUsuario(id,empresaId){
 
 }
 
-module.exports = { criarUsuario, listarUsuarios, buscarUsuario, atualizarUsuario, removerUsuario }
+module.exports = { 
+    criarUsuario, 
+    listarUsuarios, 
+    buscarUsuario, 
+    atualizarUsuario, 
+    alterarSenha,
+    removerUsuario }

@@ -30,6 +30,10 @@ function validarDadosAdmin(admin){
             erros.push("Nome do administrador é Obrigatorio.");
         }
 
+        if(!admin.cpf){
+            erros.push("CPF do Administrador é Obrigatorio.")
+        }
+
         if (!admin.email){
             erros.push("E-mail do Administrador é Obrigatorio.")
         }
@@ -39,7 +43,8 @@ function validarDadosAdmin(admin){
         }
 
         return erros;
-}
+    };
+
 
 
 
@@ -107,6 +112,7 @@ async function cadastrarEmpresa(dados){
     const admins = await Usuario.create([{
         nome: admin.nome,
         email:emailAdmin,
+        cpf: admin.cpf,
         senha: senhaHash,
         perfil: PERFIS.ADMIN,
         status: STATUS.ATIVO,

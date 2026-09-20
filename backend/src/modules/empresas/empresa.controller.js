@@ -35,11 +35,13 @@ async function cadastrar(req,res){
         console.log("========CONTROLLER.JS===============")
         console.log("RESULTADO: ", resultado);
         console.log("=======================")
+
         return res.status(201).json({
             sucesso: true,
             mensagem:"Empresa Cadastrada Com Sucesso!",
             dados: resultado
-        })
+        });
+        
         }catch (error){
         console.error("❌ ERRO NO CADASTRO DA EMPRESA:");
         console.error(error);

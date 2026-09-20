@@ -8,6 +8,7 @@ module.exports = Object.freeze({
     USUARIO_ATUALIZADO: "Usuario atualizado com sucesso.",
     USUARIO_REMOVIDO: "Usuario removido com sucesso.",
    
-       
+    EMAIL_JA_CADASTRADO: "Este E-mail ja esta cadastrado.",
+    CPF_JA_CADASTRADO: "Cpf ja cadastrado.",   
 
 })

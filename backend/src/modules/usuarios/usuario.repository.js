@@ -29,13 +29,26 @@ class UsuarioRepository{
             id,
             dados,
             {
-                new: true,
+                returnDocument: 'after',
                 runValidators: true
             }).select("-senha");
     }
     async remover(id){
         return await Usuario.findByIdAndDelete(id);
         
+    }
+
+    async atualizarsenha (id, senha){
+
+        return await Usuario.findByIdAndUpdate(
+            id,
+            {senha},
+            {
+                returnDocument: 'after',
+                runValidators: true
+            }
+
+        ).select("-senha");
     }
 }
 

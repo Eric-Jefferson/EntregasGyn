@@ -28,12 +28,12 @@ function validarCadastroEmpresa(dados){
     if(!dados.responsavel){
         erros.push("Responsavel é obrigatório.")
     }
-
+    
     if(!dados.endereco){
         erros.push("endereço é obrigatório.")
     }
     return {
-        valido: erros.length ===0, 
+        valido: erros.length === 0, 
         erros
     };
 }
