@@ -8,7 +8,7 @@ const AppError = require('../../common/errors/AppError');
 const bcrypt = require("bcrypt");
 
 
-async function criarUsuario(dados,usuarioAutenticado){
+async function criarUsuario(dados,usuarioAutenticado,session = null){
    
     const perfilSolicitante = usuarioAutenticado.perfil;
     const empresaId = usuarioAutenticado.empresaId;
@@ -58,12 +58,16 @@ async function criarUsuario(dados,usuarioAutenticado){
     console.log("=================================");
 
     const senhaHash = await bcrypt.hash(dados.senha,12);
-
+ 
+ 
+    // =========== chamada ao repository ==========================
     const usuario = await usuarioRepository.criar({
         ...dadosUsuario,
         senha: senhaHash,
         empresaId
-    });
+    }, 
+      session
+    );
 
     usuario.senha = undefined;
 
@@ -77,6 +81,7 @@ async function listarUsuarios(empresaId){
     if (!empresaId){
         throw new AppError(MENSAGENS.USUARIO_NAO_VINCULADO_EMPRESA, HTTP_STATUS.NAO_AUTORIZADO);
     }
+    
 
     return await usuarioRepository.listarPorEmpresa(empresaId)
 }
@@ -151,7 +156,7 @@ async function alterarSenha(id, novaSenha, empresaId){
     }
 
     if(usuario.empresaId.toString() !== empresaId.toString()){
-        throw new AppError(MENSAGENS.USUARIO_NAO_PERTENCE_EMRPESA, HTTP_STATUS.NAO_AUTORIZADO);
+        throw new AppError(MENSAGENS.USUARIO_NAO_PERTENCE_EMPRESA, HTTP_STATUS.NAO_AUTORIZADO);
 
     }
 
@@ -161,7 +166,7 @@ async function alterarSenha(id, novaSenha, empresaId){
 
     const senhaHash = await bcrypt.hash(novaSenha, 12);
     
-    await usuarioRepository.atualizarsenha(
+    await usuarioRepository.atualizarSenha(
         id,
         senhaHash
     )

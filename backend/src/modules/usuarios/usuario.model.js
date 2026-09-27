@@ -70,10 +70,10 @@ const usuarioSchema = new mongoose.Schema({
     }
 },
 
-{
-    timestamps: true,
-    collection:'usuarios'
-}
+    {
+        timestamps: true,
+        collection:'usuarios'
+    }
 
 );
 

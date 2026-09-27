@@ -1,0 +1,25 @@
+const STATUS_ENTREGADOR = Object.freeze({
+    ATIVO:"ATIVO",
+    INATIVO:"INATIVO",
+    BLOQUEADO:"BLOQUEADO"   
+})
+
+const DISPONIBILIDADE_ENTREGADOR = Object.freeze({
+    DISPONIVEL:"DISPONIVEL",
+    OCUPADO:"OCUPADO",
+    EM_ROTA:"EM_ROTA",
+    OFFLINE:"OFFLINE"
+})
+
+const TIPOS_VEICULO = Object.freeze({
+    CARRO:"CARRO",
+    MOTO:"MOTO",
+    BISCICLETA:"BISCICLETA",
+    
+})
+
+module.exports = { 
+    STATUS_ENTREGADOR,
+    DISPONIBILIDADE_ENTREGADOR,
+    TIPOS_VEICULO
+}

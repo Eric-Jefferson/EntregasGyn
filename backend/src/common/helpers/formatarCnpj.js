@@ -1,4 +1,4 @@
-console.log("entrou em common formatarCNPJ")
+
 function normalizarCNPJ(cnpj){
     if (!cnpj) 
         return "";

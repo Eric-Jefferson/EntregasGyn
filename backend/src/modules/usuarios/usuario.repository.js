@@ -1,7 +1,15 @@
 const Usuario = require('./usuario.model');
+
 class UsuarioRepository{
-    async criar(dados){
-        return await Usuario.create(dados);
+    async criar(dados,session = null){
+        const usuario = new Usuario(dados);
+        if(session){
+            await usuario.save({session});
+        }else{
+            await usuario.save();
+        }
+
+        return Usuario;
     }
 
     async buscarPorId(id){
@@ -38,7 +46,7 @@ class UsuarioRepository{
         
     }
 
-    async atualizarsenha (id, senha){
+    async atualizarSenha (id, senha){
 
         return await Usuario.findByIdAndUpdate(
             id,
