@@ -1,7 +1,8 @@
 const bcrypt = require('bcrypt');
+const mongoose = require('mongoose');
 const entregadorRepository = require('./entregador.repository');
 const usuarioRepository = require('../../modules/usuarios/usuario.repository');
-
+const usuarioService = require('../../modules/usuarios/usuario.service');
 const AppError = require('../../common/errors/AppError');
 const HTTP_STATUS = require('../../common/erros/http-status');
 const MENSAGENS = require('../../common/erros/mensagens');
@@ -14,9 +15,13 @@ class EntregadorService{
        
         const session = await mongoose.startSession();
         
+        let transacaoIniciada = false;
+        
         try {
-            session.starTransaction();
-
+            session.startTransaction();
+            
+            transacaoIniciada = true; 
+            
             const dadosUsuario = {
                 nome: dados.nome,
                 cpf: dados.cpf,
@@ -32,6 +37,12 @@ class EntregadorService{
                 usuarioAutenticado,
                 session             
             );
+
+            console.log("========== USUARIO CRIADO ==========");
+            console.log("ID:", usuario._id);
+            console.log("EMPRESA ID:", usuario.empresaId);
+            console.log("PERFIL:", usuario.perfil);
+            console.log("====================================");
 
          const entregador = await entregadorRepository.criar({
             usuarioId: usuario._id,
@@ -53,9 +64,9 @@ class EntregadorService{
         
 
         } catch (erro) {
-        
-            await sessio.abortTransaction();
-
+            if(transacaoIniciada){
+                await session.abortTransaction();
+            }
             throw erro;
         
         } finally{

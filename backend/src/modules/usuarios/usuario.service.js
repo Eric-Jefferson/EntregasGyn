@@ -54,7 +54,6 @@ async function criarUsuario(dados,usuarioAutenticado,session = null){
     
     console.log("=================================");
     console.log("EMPRESA DO TOKEN:", empresaId);
-    console.log("EMPRESA DO BODY:", dados.empresaId);
     console.log("=================================");
 
     const senhaHash = await bcrypt.hash(dados.senha,12);

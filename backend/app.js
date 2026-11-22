@@ -6,6 +6,7 @@ const authRoutes = require("./src/modules/auth/auth.routes")
 const apiRoutes = require("./src/routes/api.routes");
 const empresaRoutes = require('./src/modules/empresas/empresa.routes')
 const usuariosRoutes = require('./src/modules/usuarios/usuario.routes')
+const entregadorRoutes = require("./src/modules/entregadores/entregador.routes");
 const app = express();
 
 // aqui sao as middlewares.....
@@ -17,6 +18,7 @@ app.use("/auth",authRoutes);
 app.use("/", apiRoutes);//
 app.use("/empresas", empresaRoutes);
 app.use("/usuarios", usuariosRoutes)
+app.use("/entregadores", entregadorRoutes);
 
 module.exports = app;
 

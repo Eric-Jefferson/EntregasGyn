@@ -9,7 +9,7 @@ class UsuarioRepository{
             await usuario.save();
         }
 
-        return Usuario;
+        return usuario;
     }
 
     async buscarPorId(id){
